@@ -1,0 +1,22 @@
+namespace ExternalValidator
+    class ValidatorState
+        public static DLLHandle, i8, 0 
+    endclass
+endnamespace
+
+function validate_number, boolean
+    in target, a
+    in allowNegative, boolean
+proc
+    if(ReplicatorHooks.HookDllState.DLLHandle == 0)
+    begin
+        data systemType, i4
+        xcall ENVRN(systemType)
+        if(systemType == 8) then
+            ExternalValidator.ValidatorState.DLLHandle = %dll_open("libdbl_validator.so")
+        else
+            ExternalValidator.ValidatorState.DLLHandle = %dll_open("dbl_validator.dll")
+    end
+     
+    freturn %dll_call(ExternalValidator.ValidatorState.DLLHandle, DLL_TYPE_C, "validate_ascii_number", %addr(target), (i4)%size(target), (i4)allowNegative)
+endfunction
